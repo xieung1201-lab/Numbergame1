@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+  <title>숫자 순서 게임</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    html, body { height: 100%; margin: 0; }
+    .grid-6 { display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(2, 1fr); height: 100%; }
+    .cell { display:flex; align-items:center; justify-content:center; font-size:2rem; font-weight:bold; border:1px solid #ccc; cursor:pointer; user-select:none; }
+  </style>
+</head>
+<body class="bg-slate-100 flex flex-col h-full">
+
+  <!-- 게임 영역 -->
+  <div id="game" class="grid-6 flex-1">
+    <!-- 숫자 버튼 6개가 JS로 채워짐 -->
+  </div>
+
+  <!-- 결과 영역 -->
+  <div id="resultPanel" class="hidden absolute inset-0 bg-black/70 flex flex-col items-center justify-center text-white p-4">
+    <div class="bg-white text-black rounded-2xl p-6 shadow-xl max-w-sm w-full text-center">
+      <h2 class="text-xl font-bold mb-4">결과</h2>
+      <p id="timeResult" class="text-2xl font-semibold mb-6">0.000 초</p>
+      <button id="resetBtn" class="w-full px-4 py-2 rounded-xl bg-indigo-600 text-white hover:bg-indigo-700">확인</button>
+    </div>
+  </div>
+
+<script>
+  const game = document.getElementById('game');
+  const resultPanel = document.getElementById('resultPanel');
+  const timeResult = document.getElementById('timeResult');
+  const resetBtn = document.getElementById('resetBtn');
+
+  let numbers = [1,2,3,4,5,6];
+  let expected = 1;
+  let startTime = null;
+
+  function shuffle(arr) {
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+  }
+
+  function renderGrid() {
+    game.innerHTML = '';
+    numbers.forEach(num => {
+      const cell = document.createElement('div');
+      cell.className = 'cell bg-white active:bg-slate-200';
+      cell.textContent = num;
+      cell.addEventListener('click', () => handleClick(num));
+      game.appendChild(cell);
+    });
+  }
+
+  function handleClick(num) {
+    if (num === expected) {
+      if (expected === 1) {
+        startTime = performance.now();
+      }
+      if (expected === 6) {
+        const elapsed = (performance.now() - startTime) / 1000;
+        timeResult.textContent = elapsed.toFixed(3) + ' 초';
+        resultPanel.classList.remove('hidden');
+      }
+      expected++;
+    } else {
+      // 틀리면 리셋
+      resetGame();
+    }
+  }
+
+  function resetGame() {
+    expected = 1;
+    startTime = null;
+    numbers = shuffle([1,2,3,4,5,6]);
+    renderGrid();
+  }
+
+  resetBtn.addEventListener('click', () => {
+    resultPanel.classList.add('hidden');
+    resetGame();
+  });
+
+  // 첫 화면
+  renderGrid();
+</script>
+</body>
+</html>
